@@ -1,0 +1,29 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
+{
+	"name": "Mangrove WebApp v2",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/typescript-node:18-bookworm",
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"ghcr.io/devcontainers-contrib/features/apt-get-packages:1": {
+			"packages": "bash-completion"
+		}
+	},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+	"onCreateCommand": "npm uninstall -g yarn pnpm && sudo corepack enable",
+	"updateContentCommand": "corepack pnpm install",
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"esbenp.prettier-vscode",
+				"VisualStudioExptTeam.vscodeintellicode",
+				"bradlc.vscode-tailwindcss",
+				"dbaeumer.vscode-eslint",
+				"github.vscode-github-actions"
+			]
+		}
+	}
+}
