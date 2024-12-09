@@ -1,6 +1,10 @@
-import { marketOrderResultFromLogs } from "@mangrovedao/mgv"
+import { marketOrderResultFromLogs, MarketParams } from "@mangrovedao/mgv"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { TransactionReceipt } from "viem"
+import {
+  BaseError,
+  ContractFunctionExecutionError,
+  TransactionReceipt,
+} from "viem"
 import { useAccount, usePublicClient, useWalletClient } from "wagmi"
 
 import { TRADE } from "@/app/trade/_constants/loading-keys"
@@ -35,23 +39,37 @@ export function usePostMarketOrder({ onResult }: Props = {}) {
   const addresses = useMangroveAddresses()
 
   return useMutation({
-    mutationFn: async ({ form }: { form: Form }) => {
+    mutationFn: async ({
+      form,
+      swapMarket,
+      swapMarketClient,
+    }: {
+      form: Form
+      swapMarket?: MarketParams
+      swapMarketClient?: ReturnType<typeof useMarketClient>
+    }) => {
       try {
         if (
           !publicClient ||
           !walletClient ||
           !addresses ||
           !market ||
-          !marketClient ||
+          !marketClient?.uid ||
           !address
         )
           throw new Error("Market order post, is missing params")
 
-        const { base, quote } = market
-        const { bs, send: gives, receive: wants, slippage } = form
+        const contextMarket = swapMarket ? swapMarket : market
+        const contextMarketClient = swapMarketClient
+          ? swapMarketClient
+          : marketClient
 
+        const { base, quote } = contextMarket
+
+        const { bs, send: gives, receive: wants, slippage } = form
         const receiveToken = bs === "buy" ? base : quote
         const sendToken = bs === "buy" ? quote : base
+
         const baseAmount =
           bs === "buy"
             ? parseUnits(wants, base.decimals)
@@ -60,8 +78,9 @@ export function usePostMarketOrder({ onResult }: Props = {}) {
           bs === "buy"
             ? parseUnits(gives, quote.decimals)
             : parseUnits(wants, quote.decimals)
+
         const { request } =
-          await marketClient.simulateMarketOrderByVolumeAndMarket({
+          await contextMarketClient.simulateMarketOrderByVolumeAndMarket({
             baseAmount,
             quoteAmount,
             bs,
@@ -76,8 +95,8 @@ export function usePostMarketOrder({ onResult }: Props = {}) {
         })
         //note:  might need to remove marketOrderResultfromlogs function if simulateMarketOrder returns correct values
         const result = marketOrderResultFromLogs(
-          { ...addresses, ...market },
-          market,
+          { ...addresses, ...contextMarket },
+          contextMarket,
           {
             logs: receipt.logs,
             taker: walletClient.account.address,
@@ -90,13 +109,32 @@ export function usePostMarketOrder({ onResult }: Props = {}) {
           bs,
           base,
           quote,
+          wants,
           result,
           receiveToken,
           sendToken,
         )
+
         return { result, receipt }
       } catch (error) {
         console.error(error)
+
+        if (error instanceof BaseError) {
+          const revertError = error.walk(
+            (error) => error instanceof ContractFunctionExecutionError,
+          )
+
+          if (revertError instanceof ContractFunctionExecutionError) {
+            console.log(
+              revertError,
+              revertError.cause,
+              revertError.message,
+              revertError.functionName,
+              revertError.formattedArgs,
+              revertError.details,
+            )
+          }
+        }
         toast.error("Failed to post the market order")
       }
     },

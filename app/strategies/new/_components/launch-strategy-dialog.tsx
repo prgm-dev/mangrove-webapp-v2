@@ -6,7 +6,7 @@ import { ApproveStep } from "@/app/trade/_components/forms/components/approve-st
 import Dialog from "@/components/dialogs/dialog"
 import { TokenPair } from "@/components/token-pair"
 import { Text } from "@/components/typography/text"
-import { Button, type ButtonProps } from "@/components/ui/button"
+import { Button, type ButtonProps } from "@/components/ui/button-old"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { useInfiniteApproveToken } from "@/hooks/use-infinite-approve-token"
@@ -45,7 +45,7 @@ export default function DeployStrategyDialog({
   onClose,
   strategy,
 }: Props) {
-  const { address } = useAccount()
+  const { address, chain } = useAccount()
   const { currentMarket } = useMarket()
   const { base: baseToken, quote: quoteToken } = currentMarket ?? {}
 
@@ -105,8 +105,7 @@ export default function DeployStrategyDialog({
             Allow Mangrove to create your kandel instance?
           </h1>
           <p className="text-base text-gray-scale-300">
-            By granting permission, you are allowing the following contract to
-            access your funds.
+            By approving this transaction you're deploying a new kandel contract
           </p>
         </div>
       ),
@@ -139,7 +138,11 @@ export default function DeployStrategyDialog({
     !baseApprove?.done && {
       body: (
         <div className="text-center">
-          <ApproveStep tokenSymbol={baseToken?.symbol || ""} />
+          <ApproveStep
+            tokenSymbol={baseToken?.symbol || ""}
+            contractAddress={data?.kandelAddress}
+            explorerUrl={chain?.blockExplorers?.default.url}
+          />
         </div>
       ),
       button: (
@@ -167,7 +170,11 @@ export default function DeployStrategyDialog({
     !quoteApprove?.done && {
       body: (
         <div className="text-center">
-          <ApproveStep tokenSymbol={quoteToken?.symbol || ""} />
+          <ApproveStep
+            tokenSymbol={quoteToken?.symbol || ""}
+            contractAddress={data?.kandelAddress}
+            explorerUrl={chain?.blockExplorers?.default.url}
+          />
         </div>
       ),
       button: (

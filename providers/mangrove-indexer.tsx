@@ -5,24 +5,25 @@ import type { ChainsIds } from "@mangrovedao/indexer-sdk/dist/src/types/types"
 import { useQuery } from "@tanstack/react-query"
 import Big from "big.js"
 import React from "react"
+import { arbitrum } from "viem/chains"
 import { useAccount } from "wagmi"
 
 import { useTokens } from "@/hooks/use-addresses"
-import { useTokenPricesInUsb } from "@/hooks/use-orderbook-price-per-block"
+import { getTokenPrice } from "@/hooks/use-token-price"
 
 const useIndexerSdkContext = () => {
-  const tokenPrices = useTokenPricesInUsb()
   const { chain } = useAccount()
   const tokens = useTokens()
+  const chainId = chain?.id || arbitrum.id
 
   const indexerSdkQuery = useQuery({
-    queryKey: ["indexer-sdk", chain, tokenPrices.dataUpdatedAt],
+    queryKey: ["indexer-sdk", chainId],
     queryFn: () => {
       try {
-        if (!chain) return null
+        if (!chainId) return null
 
         return getSdk({
-          chainId: chain.id as ChainsIds,
+          chainId: chainId as ChainsIds,
           helpers: {
             getTokenDecimals: async (address) => {
               if (!tokens)
@@ -69,8 +70,8 @@ const useIndexerSdkContext = () => {
                 },
               }
             },
-            getPrice(tokenAddress) {
-              return tokenPrices.data?.[tokenAddress] ?? 1
+            getPrice: async (tokenAddress) => {
+              return await getTokenPrice(tokenAddress, chainId)
             },
           },
         })
@@ -81,7 +82,7 @@ const useIndexerSdkContext = () => {
     meta: {
       error: "Error when initializing the indexer sdk",
     },
-    enabled: !!chain?.id,
+    enabled: !!chainId,
     staleTime: 15 * 60 * 1000,
   })
   return {

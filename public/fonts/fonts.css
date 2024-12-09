@@ -26,3 +26,18 @@
   font-style: normal;
   font-display: swap;
 }
+
+@font-face {
+  font-family: "Ubuntu";
+  src: url("./UbuntuMono-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: regular;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Ubuntu";
+  src: url("./UbuntuMono-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: bold;
+  font-display: swap;
+}

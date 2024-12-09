@@ -1,10 +1,7 @@
-import { RoutingLogicBalance, RoutingLogicOverlying } from "@mangrovedao/mgv"
 import {
-  aaveLogicABI,
   arbitrumMangrove,
   arbitrumMarkets,
   arbitrumTokens,
-  balanceLogicABI,
   baseSepoliaLogics,
   baseSepoliaMangrove,
   baseSepoliaMarkets,
@@ -29,7 +26,7 @@ export function useMangroveAddresses() {
     case baseSepolia.id:
       return baseSepoliaMangrove
     default:
-      return undefined
+      return arbitrumMangrove
   }
 }
 
@@ -85,7 +82,7 @@ export function useMarkets() {
     case baseSepolia.id:
       return baseSepoliaMarkets
     default:
-      return []
+      return arbitrumMarkets
   }
 }
 
@@ -95,23 +92,7 @@ export function useLogics() {
     case blast.id:
       return blastLogics
     case arbitrum.id:
-      return [
-        {
-          name: "Aave",
-          logic: "0xF1E3f817fF9CaAF7083a58C50a3c4a05f80dE565",
-          gasreq: "1300000" as unknown as bigint,
-          logicOverlying: {} as RoutingLogicOverlying<
-            typeof aaveLogicABI,
-            "view",
-            "overlying"
-          >,
-          logicBalance: {} as RoutingLogicBalance<
-            typeof balanceLogicABI,
-            "view",
-            "balanceLogic"
-          >,
-        },
-      ]
+      return []
     case baseSepolia.id:
       return baseSepoliaLogics
     default:
@@ -129,6 +110,6 @@ export function useTokens() {
     case baseSepolia.id:
       return baseSepoliaTokens
     default:
-      return []
+      return arbitrumTokens
   }
 }

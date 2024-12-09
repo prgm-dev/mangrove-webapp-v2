@@ -86,9 +86,8 @@ export default function ChainSelector() {
         </Dialog.Description>
       </Dialog>
       <Button
-        variant="invisible"
-        className={"!space-x-4 lg:flex items-center hidden"}
-        size="sm"
+        variant="secondary"
+        className={"!space-x-4 lg:flex items-center hidden border-transparent"}
         onClick={openDialog}
       >
         <span className="flex space-x-2">
@@ -103,7 +102,7 @@ export default function ChainSelector() {
           <span className="text-sm whitespace-nowrap">{chain?.name}</span>
         </span>
         <div className="pl-2">
-          <ChevronDown className="w-3" />
+          <ChevronDown className="w-5" />
         </div>
       </Button>
     </>

@@ -1,7 +1,7 @@
 import { LimitOrderResult, type Token } from "@mangrovedao/mgv"
 import { BS } from "@mangrovedao/mgv/lib"
 import { toast } from "sonner"
-import { formatUnits } from "viem"
+import { formatUnits, parseUnits } from "viem"
 
 import { TokenIcon } from "@/components/token-icon"
 import { Separator } from "@/components/ui/separator"
@@ -12,19 +12,34 @@ export function successToast(
   tradeAction: BS,
   baseToken: Token,
   quoteToken: Token,
+  wants: string,
   result: LimitOrderResult,
   receiveToken: Token,
   sendToken: Token,
 ) {
-  const baseValue = tradeAction === BS.buy ? result.takerGot : result.takerGave
-  const quoteValue = tradeAction === BS.buy ? result.takerGave : result.takerGot
-  const filledOrder = `Filled with ${Number(formatUnits(quoteValue, quoteToken.decimals)).toFixed(quoteToken.displayDecimals)} ${quoteToken.symbol}`
+  const isSell = tradeAction === BS.sell
+
+  const filledOrder = `Filled with ${Number(
+    formatUnits(
+      result.takerGot,
+      isSell ? quoteToken.decimals : baseToken.decimals,
+    ),
+  ).toFixed(
+    tradeAction === BS.sell
+      ? quoteToken.displayDecimals
+      : baseToken.displayDecimals,
+  )} ${isSell ? quoteToken.symbol : baseToken.symbol}`
+
   const notFilledOrder =
     tradeMode == TradeMode.LIMIT
       ? "Limit order posted"
-      : "Market order not filled (slippage too low)"
+      : "Market order not filled (slippage limit too low)"
 
   const fillText = Number(result.takerGot) > 0 ? filledOrder : notFilledOrder
+  console.log(result.feePaid)
+
+  const approximateFee = (value: bigint, decimals: number) =>
+    Number(formatUnits(value, decimals)) <= 0.001 ? "~ " : ""
 
   toast(
     <div className="grid gap-2 w-full">
@@ -47,21 +62,53 @@ export function successToast(
             {tradeAction.toUpperCase()}
           </span>
           <span>
-            {Number(formatUnits(baseValue, baseToken.decimals)).toFixed(
-              baseToken.priceDisplayDecimals,
+            {Number(result.takerGot) <= 0 ? (
+              <>
+                {approximateFee(
+                  parseUnits(
+                    wants,
+                    isSell ? quoteToken.decimals : baseToken.decimals,
+                  ),
+                  isSell
+                    ? quoteToken.displayDecimals
+                    : baseToken.displayDecimals,
+                )}
+                {Number(wants).toFixed(
+                  isSell
+                    ? quoteToken.displayDecimals
+                    : baseToken.displayDecimals,
+                )}
+              </>
+            ) : !isSell ? (
+              <>
+                {approximateFee(result.takerGot, baseToken.decimals)}
+                {Number(
+                  formatUnits(result.takerGot, baseToken.decimals),
+                ).toFixed(baseToken.displayDecimals)}
+              </>
+            ) : (
+              <>
+                {approximateFee(result.takerGave, baseToken.decimals)}
+                {Number(
+                  formatUnits(result.takerGave, baseToken.decimals),
+                ).toFixed(baseToken.displayDecimals)}
+              </>
             )}{" "}
-            {baseToken.symbol}
+            {isSell ? sendToken.symbol : receiveToken.symbol}
           </span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">FEE</span>
-          <span>
-            {Number(formatUnits(result.feePaid, receiveToken.decimals)).toFixed(
-              receiveToken.displayDecimals + 2,
-            )}{" "}
-            {receiveToken.symbol}
-          </span>
-        </div>
+        {Number(result.feePaid) > 0 ? (
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">FEE</span>
+            <span>
+              {approximateFee(result.feePaid, receiveToken.decimals)}
+              {Number(
+                formatUnits(result.feePaid, receiveToken.decimals),
+              ).toFixed(receiveToken.displayDecimals)}{" "}
+              {receiveToken.symbol}
+            </span>
+          </div>
+        ) : undefined}
       </div>
     </div>,
     { duration: 5000, dismissible: true },

@@ -21,9 +21,9 @@ export default {
       fontFamily: {
         axiforma: ["Axiforma", ...defaultTheme.fontFamily.sans],
         roboto: ["RobotoMono", ...defaultTheme.fontFamily.sans],
+        ubuntu: ["Ubuntu", ...defaultTheme.fontFamily.sans],
       },
       colors: {
-        border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
@@ -46,7 +46,7 @@ export default {
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          foreground: "hsl(var(--text-secondary))",
         },
         accent: {
           DEFAULT: "hsl(var(--accent))",
@@ -105,6 +105,69 @@ export default {
           200: "hsl(var(--color-mango-200))",
           300: "hsl(var(--color-mango-300))",
         },
+        // New variables
+        bg: {
+          active: "hsl(var(--bg-active))",
+          disabled: "hsl(var(--bg-disabled))",
+          "disabled-subtle": "hsl(var(--bg-disabled-subtle))",
+          primary: "hsl(var(--bg-primary))",
+          "primary-hover": "hsl(var(--bg-primary-hover))",
+          secondary: "hsl(var(--bg-secondary))",
+          tertiary: "hsl(var(--bg-tertiary))",
+        },
+        border: {
+          DEFAULT: "hsl(var(--border))",
+          brand: "hsl(var(--border-brand))",
+          primary: "hsl(var(--border-primary))",
+          secondary: "hsl(var(--border-secondary))",
+          tertiary: "hsl(var(--border-tertiary))",
+        },
+        "nav-item-button": {
+          "bg-active": "hsl(var(--nav-item-button-bg-active))",
+          "icon-fg": "hsl(var(--nav-item-button-icon-fg))",
+          "icon-fg-active": "hsl(var(--nav-item-button-icon-fg-active))",
+          "icon-fg-hover": "hsl(var(--nav-item-button-icon-fg-hover))",
+        },
+        button: {
+          primary: {
+            bg: "hsl(var(--button-primary-bg))",
+            "bg-hover": "hsl(var(--button-primary-bg-hover))",
+            fg: "hsl(var(--button-primary-fg))",
+            "fg-hover": "hsl(var(--button-primary-fg-hover))",
+            fg_disabled: "hsl(var(--button-primary-fg_disabled))",
+          },
+          secondary: {
+            bg: "hsl(var(--button-secondary-bg))",
+            "bg-hover": "hsl(var(--button-secondary-bg-hover))",
+            fg: "hsl(var(--button-secondary-fg))",
+            "fg-hover": "hsl(var(--button-secondary-fg-hover))",
+          },
+          tertiary: {
+            bg: "hsl(var(--button-tertiary-bg))",
+            "bg-hover": "hsl(var(--button-tertiary-bg-hover))",
+            fg: "hsl(var(--button-tertiary-fg))",
+            "fg-hover": "hsl(var(--button-tertiary-fg-hover))",
+          },
+        },
+        fg: {
+          "disabled-subtle": "hsl(var(--fg-disabled-subtle))",
+          primary: "hsl(var(--fg-primary))",
+          quaternary: "hsl(var(--fg-quaternary))",
+          secondary: "hsl(var(--fg-secondary))",
+          tertiary: "hsl(var(--fg-tertiary))",
+          "tertiary-hover": "hsl(var(--fg-tertiary-hover))",
+        },
+        text: {
+          brand: "hsl(var(--text-brand))",
+          disabled: "hsl(var(--text-disabled))",
+          placeholder: "hsl(var(--text-placeholder))",
+          primary: "hsl(var(--text-primary))",
+          quaternary: "hsl(var(--text-quaternary))",
+          secondary: "hsl(var(--text-secondary))",
+          "secondary-hover": "hsl(var(--text-secondary-hover))",
+          tertiary: "hsl(var(--text-tertiary))",
+          "tertiary-hover": "hsl(var(--text-tertiary-hover))",
+        },
       },
       maxWidth: {
         "8xl": "90rem",
@@ -133,10 +196,15 @@ export default {
         success: "0 0 0 16px rgba(3, 34, 33, 0.25)",
       },
       backgroundImage: {
+        "gradient-radial":
+          "radial-gradient(69.86% 175.89% at 51.06% 50%, #1C3A40 0%, #12272B 72.5%)",
         "level-chart":
           "linear-gradient(180deg, rgba(3, 98, 76, 0.00) 57.96%, rgba(3, 98, 76, 0.30) 99.5%)",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require("@tailwindcss/container-queries"),
+  ],
 } satisfies Config

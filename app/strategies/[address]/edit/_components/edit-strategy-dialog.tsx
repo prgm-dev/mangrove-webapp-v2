@@ -8,7 +8,7 @@ import { ApproveStep } from "@/app/trade/_components/forms/components/approve-st
 import Dialog from "@/components/dialogs/dialog"
 import { TokenPair } from "@/components/token-pair"
 import { Text } from "@/components/typography/text"
-import { Button, type ButtonProps } from "@/components/ui/button"
+import { Button, type ButtonProps } from "@/components/ui/button-old"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { useInfiniteApproveToken } from "@/hooks/use-infinite-approve-token"
@@ -45,7 +45,7 @@ export default function EditStrategyDialog({
   onClose,
   strategy,
 }: Props) {
-  const { address } = useAccount()
+  const { address, chain } = useAccount()
 
   const { data: nativeBalance } = useBalance({
     address,
@@ -106,7 +106,11 @@ export default function EditStrategyDialog({
     !baseApprove?.done && {
       body: (
         <div className="text-center">
-          <ApproveStep tokenSymbol={baseToken?.symbol || ""} />
+          <ApproveStep
+            tokenSymbol={baseToken?.symbol || ""}
+            contractAddress={kandelAddress}
+            explorerUrl={chain?.blockExplorers?.default.url}
+          />
         </div>
       ),
       button: (
@@ -134,7 +138,11 @@ export default function EditStrategyDialog({
     !quoteApprove?.done && {
       body: (
         <div className="text-center">
-          <ApproveStep tokenSymbol={quoteToken?.symbol || ""} />
+          <ApproveStep
+            tokenSymbol={quoteToken?.symbol || ""}
+            contractAddress={kandelAddress}
+            explorerUrl={chain?.blockExplorers?.default.url}
+          />
         </div>
       ),
       button: (
@@ -165,8 +173,8 @@ export default function EditStrategyDialog({
           <div className="flex justify-center items-center"></div>
           <h1 className="text-2xl text-white">Reset strategy</h1>
           <p className="text-base text-gray-scale-300">
-            By granting permission, you are allowing the following contract to
-            reset this strategy.
+            By granting permission, you are allowing mangrove to reset this
+            strategy.
           </p>
         </div>
       ),

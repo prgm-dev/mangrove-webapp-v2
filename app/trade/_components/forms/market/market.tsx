@@ -1,31 +1,25 @@
 import { BS } from "@mangrovedao/mgv/lib"
 import Big from "big.js"
-import { LucideChevronRight } from "lucide-react"
 import React from "react"
 import { formatUnits } from "viem"
 
-import {
-  CustomRadioGroup,
-  CustomRadioGroupItem,
-} from "@/components/custom-radio-group"
+import { CustomInput } from "@/components/custom-input-new"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { Slider } from "@/components/ui/slider"
 import { cn } from "@/utils"
 import { FIELD_ERRORS } from "@/utils/form-errors"
-import { EnhancedNumericInput } from "@components/token-input"
+import { EnhancedNumericInput } from "@components/token-input-new"
+import { useAccount } from "wagmi"
+import { Accordion } from "../components/accordion"
 import { MarketDetails } from "../components/market-details"
-import { TradeAction } from "../enums"
 import FromWalletMarketOrderDialog from "./components/from-wallet-order-dialog"
 import { useMarketForm } from "./hooks/use-market"
 import { type Form } from "./types"
 import { isGreaterThanZeroValidator, sendValidator } from "./validators"
 
-const sliderValues = [25, 50, 75, 100]
 const slippageValues = ["0.1", "0.5", "1"]
 
-export function Market() {
+export function Market(props: { bs: BS }) {
+  const { isConnected } = useAccount()
   const [formData, setFormData] = React.useState<Form>()
   const [showCustomInput, setShowCustomInput] = React.useState(false)
 
@@ -44,7 +38,11 @@ export function Market() {
     avgPrice,
     feeInPercentageAsString,
     spotPrice,
-  } = useMarketForm({ onSubmit: (formData) => setFormData(formData) })
+    slippage,
+  } = useMarketForm({
+    onSubmit: (formData) => setFormData(formData),
+    bs: props.bs,
+  })
 
   const sendBalance = formatUnits(
     sendTokenBalance.balance?.balance || 0n,
@@ -71,35 +69,6 @@ export function Market() {
     <>
       <form.Provider>
         <form onSubmit={handleSubmit} autoComplete="off">
-          <form.Field name="bs">
-            {(field) => (
-              <CustomRadioGroup
-                name={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onValueChange={(e: BS) => {
-                  field.handleChange(e)
-                  computeReceiveAmount()
-                }}
-                disabled={!market}
-              >
-                {Object.values(TradeAction).map((action) => (
-                  <CustomRadioGroupItem
-                    key={action}
-                    value={action}
-                    id={action}
-                    variant={
-                      action === TradeAction.SELL ? "secondary" : "primary"
-                    }
-                    className="capitalize"
-                  >
-                    {action}
-                  </CustomRadioGroupItem>
-                ))}
-              </CustomRadioGroup>
-            )}
-          </form.Field>
-
           <div className="space-y-4 !mt-6">
             <form.Field
               name="send"
@@ -114,6 +83,7 @@ export function Market() {
             >
               {(field) => (
                 <EnhancedNumericInput
+                  inputClassName="text-text-primary text-lg h-8"
                   name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
@@ -121,6 +91,8 @@ export function Market() {
                     field.handleChange(value)
                     computeReceiveAmount()
                   }}
+                  sendSliderValue={Number(sliderValue)}
+                  setSendSliderValue={handleSliderChange}
                   balanceAction={{
                     onClick: () => {
                       field.handleChange(
@@ -149,6 +121,7 @@ export function Market() {
             <form.Field name="receive" onChange={isGreaterThanZeroValidator}>
               {(field) => (
                 <EnhancedNumericInput
+                  inputClassName="text-text-primary text-lg h-8"
                   name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
@@ -164,115 +137,92 @@ export function Market() {
                       ? [FIELD_ERRORS.insufficientVolume]
                       : field.state.meta.touchedErrors
                   }
-                  showBalance
                 />
               )}
             </form.Field>
 
-            {/* Slider component */}
-            <div className="space-y-5 pt-2 px-3">
-              <Slider
-                name={"sliderPercentage"}
-                defaultValue={[0]}
-                value={[Number(sliderValue)]}
-                step={5}
-                min={0}
-                max={100}
-                onValueChange={([value]) => {
-                  handleSliderChange(Number(value))
-                }}
-                disabled={!(market && form.state.isFormValid)}
-              />
-              <div className="flex justify-center space-x-3">
-                {sliderValues.map((value) => (
-                  <Button
-                    key={`percentage-button-${value}`}
-                    variant={"secondary"}
-                    size={"sm"}
-                    className={cn("text-xs w-full", {
-                      "opacity-10": Number(sliderValue) !== value,
-                    })}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      handleSliderChange(Number(value))
-                    }}
-                    disabled={!market}
-                  >
-                    {value}%
-                  </Button>
-                ))}
-              </div>
-            </div>
-
-            <Separator className="!my-6" />
             <div className="flex justify-between">
               <span className="text-muted-foreground text-xs">
                 Average market price
               </span>
-              <span className="text-xs">
+              <span className="text-xs text-text-secondary">
                 {avgPrice} {quote?.symbol}
               </span>
             </div>
-            <Separator className="!my-6" />
-            <form.Field name="slippage">
-              {(field) => (
-                <div className="space-y-2">
-                  <Label>Slippage tolerance</Label>
-                  {/* Add buttons for 25%, 50%, 75%, and 100% */}
-                  <div className="flex space-x-3">
-                    {slippageValues.map((value) => (
+            <Accordion
+              title="Slippage tolerance"
+              tooltip="How much price slippage you're willing to accept so that your order can be executed"
+              chevronValue={`${slippage}%`}
+            >
+              <form.Field name="slippage">
+                {(field) => (
+                  <div className="space-y-2 mt-1">
+                    <div className="flex justify-around bg-bg-primary rounded-lg">
+                      {slippageValues.map((value) => (
+                        <Button
+                          key={`percentage-button-${value}`}
+                          variant={"secondary"}
+                          size={"sm"}
+                          className={cn(
+                            "text-xs flex-1 bg-bg-primary border-none rounded-lg",
+                            {
+                              "opacity-10":
+                                field.state.value !== Number(value) ||
+                                showCustomInput,
+                              "border-none bg-bg-tertiary rounded-lg":
+                                field.state.value === Number(value) &&
+                                !showCustomInput,
+                            },
+                          )}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            showCustomInput &&
+                              setShowCustomInput(!showCustomInput)
+                            field.handleChange(Number(value))
+                          }}
+                          disabled={!market}
+                        >
+                          {value}%
+                        </Button>
+                      ))}
                       <Button
-                        key={`percentage-button-${value}`}
-                        variant={"secondary"}
-                        size={"sm"}
-                        className={cn("text-xs", {
-                          "opacity-10":
-                            field.state.value !== Number(value) ||
-                            showCustomInput,
-                        })}
                         onClick={(e) => {
                           e.preventDefault()
-                          showCustomInput &&
-                            setShowCustomInput(!showCustomInput)
-                          field.handleChange(Number(value))
+                          setShowCustomInput(!showCustomInput)
                         }}
-                        disabled={!market}
+                        variant={"secondary"}
+                        size={"sm"}
+                        className={cn(
+                          "text-xs flex-1 bg-bg-primary border-none rounded-lg",
+                          {
+                            "opacity-10": !showCustomInput,
+                            "border-none bg-bg-tertiary rounded-lg":
+                              showCustomInput,
+                          },
+                        )}
                       >
-                        {value}%
+                        Custom
                       </Button>
-                    ))}
-                    <Button
-                      onClick={(e) => {
-                        e.preventDefault()
-                        setShowCustomInput(!showCustomInput)
-                      }}
-                      variant={"secondary"}
-                      size={"sm"}
-                      className={cn("text-xs", {
-                        "opacity-10": !showCustomInput,
-                      })}
-                    >
-                      Custom
-                    </Button>
+                    </div>
+                    {/* Render the custom input component */}
+                    {showCustomInput && (
+                      <CustomInput
+                        symbol={"%"}
+                        maxLength={2}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={({ target: { value } }) => {
+                          if (value.length > 2) return
+
+                          // field.handleChange(Number(value))
+                        }}
+                      />
+                    )}
                   </div>
-                  {/* Render the custom input component */}
-                  {showCustomInput && (
-                    <EnhancedNumericInput
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={({ target: { value } }) => {
-                        field.handleChange(Number(value))
-                      }}
-                      label="Custom"
-                      disabled={!(market && form.state.isFormValid)}
-                      error={field.state.meta.touchedErrors}
-                    />
-                  )}
-                </div>
-              )}
-            </form.Field>
-            <Separator className="!my-6" />
+                )}
+              </form.Field>
+            </Accordion>
 
             <MarketDetails takerFee={feeInPercentageAsString} />
 
@@ -286,22 +236,18 @@ export function Market() {
               {([canSubmit, isSubmitting, tradeAction]) => {
                 return (
                   <Button
-                    className="w-full flex items-center justify-center !mb-4 capitalize !mt-6"
+                    className={cn(
+                      "w-full flex items-center justify-center !mb-4 capitalize !mt-6",
+                      {
+                        "bg-[#FF5555] hover:bg-[#ff6363]":
+                          tradeAction === BS.sell,
+                      },
+                    )}
                     size={"lg"}
                     type="submit"
-                    disabled={!canSubmit || !market}
+                    disabled={!canSubmit || !market || !isConnected}
                   >
                     {isSubmitting ? "Processing..." : tradeAction}
-                    <div
-                      className={cn(
-                        "ml-2 bg-white h-6 w-6 rounded-full text-secondary flex items-center justify-center transition-opacity",
-                        {
-                          "opacity-10": !market,
-                        },
-                      )}
-                    >
-                      <LucideChevronRight className="h-4 text-current" />
-                    </div>
                   </Button>
                 )
               }}

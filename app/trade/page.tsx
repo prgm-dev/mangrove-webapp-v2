@@ -2,38 +2,32 @@
 import MarketSelector from "@/app/trade/_components/market-selector/market-selector"
 import { Market } from "./_components/charts/charts"
 import { Forms } from "./_components/forms/forms"
-import { OrderBook } from "./_components/orderbook/orderbook"
 import { PricesBar } from "./_components/prices-bar/prices-bar"
 import { Tables } from "./_components/tables/tables"
 
 export default function Page() {
   return (
-    <main>
-      <section className="trade-section">
-        <div className="px-4 border-b h-[var(--bar-height)] flex items-center relative">
-          <MarketSelector />
-        </div>
-        <Forms />
-      </section>
-
-      <section className="border-x book-and-chart">
-        <OrderBook
-          className="overflow-hidden border-r book-container"
-          style={{ gridArea: "book" }}
-        />
+    <main className="gap-x-5">
+      <div className="flex items-center">
+        <MarketSelector />
+        <PricesBar />
+      </div>
+      <section className="chart-container border-x border-t rounded-t-2xl">
         <div
-          className="market-chart-container"
           style={{
             gridArea: "chart",
           }}
         >
-          <PricesBar />
-          <Market className="w-full border-t h-full" />
+          <Market className="w-full h-full" />
         </div>
       </section>
 
-      <section className="border-x border-t tables-section z-50 bg-background">
+      <section className="border-x border-t border-b rounded-b-2xl tables-section z-50 bg-background">
         <Tables className="h-full" />
+      </section>
+
+      <section className="trade-section">
+        <Forms />
       </section>
       <style jsx global>{`
         body {
@@ -50,11 +44,14 @@ export default function Page() {
         main {
           display: grid;
           grid-area: main;
-          grid-template-columns: 20.5rem minmax(0, 1fr);
-          grid-template-rows: 1fr var(--history-table-height);
+          grid-template-columns: minmax(0, 1fr) 20.5rem;
           grid-template-areas:
-            "trade content"
-            "trade tables";
+            "nav nav"
+            "content trade"
+            "tables trade";
+          grid-template-rows: 56px 1fr 400px;
+          height: calc(100vh - 112px);
+          max-height: calc(100vh - 112px);
         }
 
         .tables-section {
@@ -63,39 +60,39 @@ export default function Page() {
 
         .trade-section {
           grid-area: trade;
+          max-height: 100%;
         }
 
-        .book-and-chart {
+        .chart-container {
           display: grid;
           grid-area: content;
-          grid-template-areas: "book chart";
-          grid-template-columns: 20.5rem minmax(0, 1fr);
-          grid-template-rows: var(--book-chart-height);
+          grid-template-areas: "chart";
+          grid-template-columns: minmax(0, 1fr);
         }
 
-        @media (max-height: 800px) {
+        {/* @media (max-height: 800px) {
           main {
-            grid-template-rows: 50% 50%;
+            grid-template-rows: 56px 50% 50%;
           }
 
-          .book-and-chart {
+          .chart-container {
             grid-template-rows: calc(50vh - var(--bar-height) + 38px);
           }
-        }
+        } */}
       `}</style>
       <style global jsx>{`
-        .market-chart-container div[role="tabpanel"] {
+        {/* .market-chart-container div[role="tabpanel"] {
           height: calc(100% - var(--bar-height) * 2);
         }
         .book-container div[role="tabpanel"] {
           height: calc(100% - var(--bar-height));
-        }
+        } */}
 
-        @media (max-height: 800px) {
+        {/* @media (max-height: 800px) {
           :root {
             --history-table-content-height: calc(50vh - var(--bar-height) * 2);
           }
-        }
+        } */}
       `}</style>
     </main>
   )

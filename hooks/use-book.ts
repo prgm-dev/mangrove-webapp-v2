@@ -37,7 +37,7 @@ export function useBook(
     queryKey: [
       "book",
       params,
-      client?.chain?.id,
+      client?.key,
       currentMarket?.base.address,
       currentMarket?.quote.address,
       currentMarket?.tickSpacing.toString(),
@@ -48,14 +48,14 @@ export function useBook(
 
       if (params?.aggregateOffersWithSamePrice) {
         book.bids = aggregateOffers(book.bids)
-        book.asks = aggregateOffers(book.asks)
+        book.asks = aggregateOffers(book.asks).reverse()
       }
 
       return {
         book,
       }
     },
-    enabled: !!client,
+    enabled: !!client?.key,
     refetchInterval: 3000,
   })
   return {

@@ -69,17 +69,6 @@ export function CustomBalance(props: {
               </TooltipPortal>
             </Tooltip>
           </TooltipProvider>
-
-          {props?.action && props?.action.text && (
-            <button
-              className="text-xs underline"
-              onClick={(e) => {
-                props.balance && props?.action?.onClick(props.balance)
-              }}
-            >
-              {props?.action.text}
-            </button>
-          )}
         </span>
       )}
     </div>

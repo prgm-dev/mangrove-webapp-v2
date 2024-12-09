@@ -3,7 +3,7 @@ import { useAccount } from "wagmi"
 
 import { tradeService } from "@/app/trade/_services/trade.service"
 import { Text } from "@/components/typography/text"
-import { Button, type ButtonProps } from "@/components/ui/button"
+import { Button, type ButtonProps } from "@/components/ui/button-old"
 import { Label } from "@/components/ui/label"
 import { useLogics } from "@/hooks/use-addresses"
 import { useInfiniteApproveToken } from "@/hooks/use-infinite-approve-token"
@@ -166,7 +166,13 @@ export default function EditOrderSteps({
       ),
     },
     !limitOrderSteps?.[0].done && {
-      body: <ApproveStep tokenSymbol={sendToken?.symbol ?? ""} />,
+      body: (
+        <ApproveStep
+          tokenSymbol={sendToken?.symbol ?? ""}
+          contractAddress={spender ?? ""}
+          explorerUrl={chain?.blockExplorers?.default.url}
+        />
+      ),
       button: (
         <Button
           {...btnProps}

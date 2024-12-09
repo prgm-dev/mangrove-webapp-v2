@@ -89,6 +89,7 @@ export function usePostLimitOrder({ onResult }: Props = {}) {
           bs === "buy"
             ? parseUnits(wants, base.decimals)
             : parseUnits(gives, base.decimals)
+
         const quoteAmount =
           bs === "buy"
             ? parseUnits(gives, quote.decimals)
@@ -134,6 +135,7 @@ export function usePostLimitOrder({ onResult }: Props = {}) {
           bs,
           base,
           quote,
+          wants,
           result,
           receiveToken,
           sendToken,
