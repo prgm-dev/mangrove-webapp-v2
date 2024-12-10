@@ -2,12 +2,12 @@ import { BS } from "@mangrovedao/mgv/lib"
 import React from "react"
 import { formatUnits } from "viem"
 
-import InfoTooltip from "@/components/info-tooltip-new"
 import { EnhancedNumericInput } from "@/components/token-input-new"
-import { Caption } from "@/components/typography/caption"
 import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
 
+import InfoTooltip from "@/components/info-tooltip-new"
+import { Caption } from "@/components/typography/caption"
+import { Label } from "@/components/ui/label"
 import {
   Select,
   SelectContent,
@@ -201,6 +201,7 @@ export function Limit(props: { bs: BS }) {
                   </span>
                 )}
               </div>
+
               <Accordion title="Liquidity sourcing">
                 <div className="flex justify-between space-x-2 pt-2">
                   <form.Field name="sendFrom">
@@ -226,7 +227,7 @@ export function Limit(props: { bs: BS }) {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
-                              {sendLogics?.map(
+                              {/* {sendLogics?.map(
                                 (source) =>
                                   source && (
                                     <SelectItem
@@ -243,8 +244,7 @@ export function Limit(props: { bs: BS }) {
                                       </div>
                                     </SelectItem>
                                   ),
-                              )}
-                              {/* Wallet */}
+                              )} */}
                               <SelectItem key="simple" value="simple">
                                 <div className="flex gap-2 w-full items-center">
                                   <SourceIcon sourceId={"simple"} />
@@ -289,7 +289,7 @@ export function Limit(props: { bs: BS }) {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
-                              {receiveLogics?.map(
+                              {/* {receiveLogics?.map(
                                 (source) =>
                                   source && (
                                     <SelectItem
@@ -306,8 +306,7 @@ export function Limit(props: { bs: BS }) {
                                       </div>
                                     </SelectItem>
                                   ),
-                              )}
-                              {/* Wallet */}
+                              )} */}
                               <SelectItem key="simple" value="simple">
                                 <div className="flex gap-2 w-full items-center">
                                   <SourceIcon sourceId={"simple"} />
@@ -324,6 +323,7 @@ export function Limit(props: { bs: BS }) {
                   </form.Field>
                 </div>
               </Accordion>
+
               <Accordion title="Time in force">
                 <form.Field name="timeInForce">
                   {(field) => {
